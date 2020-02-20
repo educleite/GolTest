@@ -1,0 +1,296 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<!--
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Oracle JDeveloper BPEL Designer 
+  
+  Created: Sat Apr 27 13:47:22 BRT 2019
+  Author:  Eduardo Leite
+  Type: BPEL 2.0 Process
+  Purpose: Synchronous BPEL Process
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
+<process name="getPersonInfoBPEL"
+         targetNamespace="http://xmlns.oracle.com/GOL12c_appliedTestSB/humanResourceBPEL/getPersonInfoBPEL"
+         xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+         xmlns:client="http://xmlns.oracle.com/GOL12c_appliedTestSB/humanResourceBPEL/getPersonInfoBPEL"
+         xmlns:ora="http://schemas.oracle.com/xpath/extension" xmlns:ui="http://xmlns.oracle.com/soa/designer"
+         xmlns:bpelx="http://schemas.oracle.com/bpel/extension"
+         xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+         xmlns:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20"
+         xmlns:bpws="http://schemas.xmlsoap.org/ws/2003/03/business-process/"
+         xmlns:oraext="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.ExtFunc"
+         xmlns:dvm="http://www.oracle.com/XSL/Transform/java/oracle.tip.dvm.LookupValue"
+         xmlns:hwf="http://xmlns.oracle.com/bpel/workflow/xpath"
+         xmlns:ids="http://xmlns.oracle.com/bpel/services/IdentityService/xpath"
+         xmlns:bpm="http://xmlns.oracle.com/bpmn20/extensions" xmlns:ess="http://xmlns.oracle.com/scheduler"
+         xmlns:xdk="http://schemas.oracle.com/bpel/extension/xpath/function/xdk"
+         xmlns:xref="http://www.oracle.com/XSL/Transform/java/oracle.tip.xref.xpath.XRefXPathFunctions"
+         xmlns:ldap="http://schemas.oracle.com/xpath/extension/ldap" xmlns:ns1="http://www.gol.com.br/hr/">
+    <import ui:processWSDL="true"
+            namespace="http://xmlns.oracle.com/GOL12c_appliedTestSB/humanResourceBPEL/getPersonInfoBPEL"
+            location="../WSDLs/getPersonInfoBPEL.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"/>
+    <!-- 
+     Import some class for java embedding codification
+  -->
+    <import location="oracle.xml.parser.v2.XMLElement" importType="http://schemas.oracle.com/bpel/extension/java"/>
+    <import location="java.io.*" importType="http://schemas.oracle.com/bpel/extension/java"/>
+    <import location="java.text.SimpleDateFormat" importType="http://schemas.oracle.com/bpel/extension/java"/>
+    <import location="java.text.ParseException" importType="http://schemas.oracle.com/bpel/extension/java"/>
+    <import location="java.util.Date" importType="http://schemas.oracle.com/bpel/extension/java"/>
+    <import location="java.lang.String" importType="http://schemas.oracle.com/bpel/extension/java"/>
+    <import location="java.lang.Integer" importType="http://schemas.oracle.com/bpel/extension/java"/>
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        PARTNERLINKS                                                      
+        List of services participating in this BPEL process               
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    -->
+    <partnerLinks>
+        <!-- 
+      The 'client' role represents the requester of this service. It is 
+      used for callback. The location and correlation information associated
+      with the client role are automatically set using WS-Addressing.
+    -->
+        <partnerLink name="getpersoninfobpel_client" partnerLinkType="client:getPersonInfoBPEL"
+                     myRole="getPersonInfoBPELProvider"/>
+    </partnerLinks>
+    <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      VARIABLES                                                        
+      List of messages and XML documents used within this BPEL process 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+    <variables>
+        <!-- Reference to the message passed as input during initiation -->
+        <variable name="inputVariable" messageType="client:getPersonInfoBPELRequestMessage"/>
+        <!-- Reference to the message that will be returned to the requester-->
+        <variable name="outputVariable" messageType="client:getPersonInfoBPELResponseMessage"/>
+        <variable name="dateOfBirth" type="xsd:string"/>
+        <variable name="formatInterval" type="xsd:string"/>
+        <variable name="interval" type="xsd:string"/>
+        <variable name="currentYear" type="xsd:string"/>
+        <variable name="currentDate" type="xsd:string"/>
+        <variable name="springYear" type="xsd:string"/>
+        <variable name="springLived" type="xsd:int"/>
+        <variable name="counter" type="xsd:int"/>
+        <variable name="checkSpringResult" type="xsd:string"/>
+    </variables>
+    <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+     ORCHESTRATION LOGIC                                               
+     Set of activities coordinating the flow of messages across the    
+     services integrated within this business process                  
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+    <sequence name="main">
+        <!-- Receive input from requestor. (Note: This maps to operation defined in getPersonInfoBPEL.wsdl) -->
+        <receive name="receiveInput" partnerLink="getpersoninfobpel_client" portType="client:getPersonInfoBPEL"
+                 operation="process" variable="inputVariable" createInstance="yes"/>
+        <sequence name="SequenceYears">
+            <assign name="assignSetDates">
+                <copy>
+                    <from>xp20:current-dateTime()</from>
+                    <to>$currentDate</to>
+                </copy>
+                <copy>
+                    <from>string("YEARS")</from>
+                    <to>$formatInterval</to>
+                </copy>
+                <copy>
+                    <from>$inputVariable.payload/ns1:dateOfBirth</from>
+                    <to>$dateOfBirth</to>
+                </copy>
+            </assign>
+            <extensionActivity>
+                <bpelx:exec name="calculatingAge" language="java">
+                    <![CDATA[/*           
+   Teste SOA GOL           
+   Desenvolvido por Eduardo Leite em 27-04-2019.      
+   Objetivo principal: Encapsular o processo sistemico que calcula  
+                       a idade de uma pessoa/empregado.  
+      
+*/           
+addAuditTrailEntry(">>>> Start of Java Embedding routine");                 
+            
+String dateFrom    = (String)getVariableData( "dateOfBirth" );            
+String dateTo      = (String)getVariableData( "currentDate" );            
+String diffCode    = (String)getVariableData( "formatInterval" );           
+            
+String dateInit    = dateFrom.replace("T", " " );                      
+String dateEnd     = dateTo.replace("T", " " );              
+String interval    = null;   
+String currentYear = dateTo.substring(0, 4);    
+             
+SimpleDateFormat format = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss" );               
+           
+Date d1 = null;              
+Date d2 = null;               
+                      
+try{              
+                          
+    d1 = format.parse( dateInit );                          
+    d2 = format.parse( dateEnd );                          
+                          
+} catch (ParseException e){              
+                          
+    addAuditTrailEntry(e);              
+                         
+}               
+             
+// Get msec from each, and subtract.              
+long diff = d2.getTime() - d1.getTime();              
+long diffSeconds = diff / 1000;                       
+long diffMinutes = diff / (60 * 1000);                       
+long diffHours   = diff / (60 * 60 * 1000);                    
+long diffYears   = diff / (60 * 60 * 1000) / 24 / 365;               
+             
+addAuditTrailEntry("Time in seconds: " + diffSeconds + " seconds.");                       
+addAuditTrailEntry("Time in minutes: " + diffMinutes + " minutes.");                       
+addAuditTrailEntry("Time in hours: "   + diffHours   + " hours.");                         
+addAuditTrailEntry("Time in years: "   + diffYears   + " years.");            
+             
+if ( diffCode.equals("SECONDS") ){              
+   interval = String.valueOf(diffSeconds);              
+}              
+if ( diffCode.equals("MINUTES") ){              
+   interval = String.valueOf(diffMinutes);              
+}              
+if ( diffCode.equals("HOURS") ){              
+   interval = String.valueOf(diffHours);              
+}                
+if ( diffCode.equals("YEARS") ){              
+   interval = String.valueOf(diffYears);        
+}              
+            
+setVariableData( "interval", interval );        
+setVariableData( "currentYear", currentYear );    
+             
+addAuditTrailEntry("<<<< End of Java Embedding routine");]]>
+                </bpelx:exec>
+            </extensionActivity>
+            <assign name="assignSetResults">
+                <copy>
+                    <from>$interval</from>
+                    <to>$outputVariable.payload/ns1:age</to>
+                </copy>
+                <copy>
+                    <from>0</from>
+                    <to>$counter</to>
+                </copy>
+                <copy>
+                    <from>1</from>
+                    <to>$springLived</to>
+                </copy>
+                <extensionAssignOperation>
+                    <bpelx:copyList>
+                        <bpelx:from><bpelx:literal><spring xmlns="http://www.gol.com.br/hr/">
+<year/> 
+<year/> 
+<year/> 
+<year/> 
+<year/> 
+</spring></bpelx:literal></bpelx:from>
+                        <bpelx:to>$outputVariable.payload/ns1:spring</bpelx:to>
+                    </bpelx:copyList>
+                </extensionAssignOperation>
+            </assign>
+            <while name="WhilePrintSprings">
+                <condition>$springLived &lt;= number("5")</condition>
+                <sequence name="SequenceWhileSprings">
+                    <assign name="AssignSetSprings">
+                        <copy>
+                            <from>number($currentYear)-$counter</from>
+                            <to>$springYear</to>
+                        </copy>
+                    </assign>
+                    <extensionActivity>
+                        <bpelx:exec name="checkSpring" language="java">
+                            <![CDATA[/*               
+   Teste SOA GOL               
+   Desenvolvido por Eduardo Leite em 27-04-2019.          
+   Objetivo principal: Encapsular o processo sistemico que verifica se a primavera       
+                       foi vivenciada pelo individuo.      
+          
+*/               
+    
+addAuditTrailEntry(">>>> Start of Java Embedding routine");    
+                
+String dateOfBirth = (String)getVariableData( "dateOfBirth" );                
+String springYear  = (String)getVariableData( "springYear" );              
+String currentDate = (String)getVariableData( "currentDate" );           
+     
+dateOfBirth        = dateOfBirth.replace("T", " " );  
+currentDate        = currentDate.replace("T", " " );        
+          
+String startSpringDate   = springYear + "-09-23 00:00:00";        
+String endSpringDate     = springYear + "-12-22 00:00:00";      
+                 
+SimpleDateFormat format = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss" );     
+               
+Date dDateOfBirth     = null;    
+Date dCurrentDate     = null;      
+Date dStartSpringDate = null;      
+Date dEndSpringDate   = null;                   
+      
+String result = null;         
+                          
+// Converting to date      
+try{                  
+                              
+    dDateOfBirth     = format.parse( dateOfBirth     );     
+    dCurrentDate     = format.parse( currentDate     );       
+    dStartSpringDate = format.parse( startSpringDate );       
+    dEndSpringDate   = format.parse( endSpringDate   );       
+                              
+} catch (ParseException e){                  
+                              
+    addAuditTrailEntry(e);                  
+                             
+}                  
+                     
+          // Check if the person lived between 23-sep and 22-dec       
+                     
+            if ( dCurrentDate.before(dStartSpringDate) && !dCurrentDate.equals(dStartSpringDate) ){   
+               result = "false";   
+            }   
+            else { if (dDateOfBirth.after(dStartSpringDate)){  
+               result = "false";     
+            }   
+            else {  
+               result = "true";    
+            }  
+            }  
+           
+addAuditTrailEntry("result " + result);      
+      
+setVariableData( "checkSpringResult", result );        
+                 
+addAuditTrailEntry("<<<< End of Java Embedding routine");]]>
+                        </bpelx:exec>
+                    </extensionActivity>
+                    <assign name="AssignSetSpringOutput">
+                        <bpelx:skipCondition>$checkSpringResult = "false"</bpelx:skipCondition>
+                        <copy>
+                            <from>$springYear</from>
+                            <to>$outputVariable.payload/ns1:spring/ns1:year[$springLived]</to>
+                        </copy>
+                        <copy>
+                            <from>$springLived+1</from>
+                            <to>$springLived</to>
+                        </copy>
+                    </assign>
+                    <assign name="AssignSetCounter">
+                        <copy>
+                            <from>$counter+1</from>
+                            <to>$counter</to>
+                        </copy>
+                    </assign>
+                </sequence>
+            </while>
+        </sequence>
+        <!-- Generate reply to synchronous request -->
+        <reply name="replyOutput" partnerLink="getpersoninfobpel_client" portType="client:getPersonInfoBPEL"
+               operation="process" variable="outputVariable"/>
+    </sequence>
+</process>

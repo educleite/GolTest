@@ -1,0 +1,42 @@
+<wsdl:definitions name="getPersonInfoBPEL" targetNamespace="http://xmlns.oracle.com/GOL12c_appliedTestSB/humanResourceBPEL/getPersonInfoBPEL" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:client="http://xmlns.oracle.com/GOL12c_appliedTestSB/humanResourceBPEL/getPersonInfoBPEL" xmlns:ns1="http://www.gol.com.br/hr/" xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+    <wsdl:documentation>
+        <abstractWSDL>https://localhost:7102/soa-infra/services/GOL/humanResourceBPEL!1.0/WSDLs/getPersonInfoBPEL.wsdl</abstractWSDL>
+    </wsdl:documentation>
+    <plnk:partnerLinkType name="getPersonInfoBPEL">
+        <plnk:role name="getPersonInfoBPELProvider" portType="client:getPersonInfoBPEL"/>
+    </plnk:partnerLinkType>
+    <wsdl:types>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <xsd:import namespace="http://www.gol.com.br/hr/" schemaLocation="PersonInfo.xsd"/>
+        </xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="getPersonInfoBPELRequestMessage">
+        <wsdl:part name="payload" element="ns1:personInfo"/>
+    </wsdl:message>
+    <wsdl:message name="getPersonInfoBPELResponseMessage">
+        <wsdl:part name="payload" element="ns1:resultPersonInfo"/>
+    </wsdl:message>
+    <wsdl:portType name="getPersonInfoBPEL">
+        <wsdl:operation name="process">
+            <wsdl:input message="client:getPersonInfoBPELRequestMessage"/>
+            <wsdl:output message="client:getPersonInfoBPELResponseMessage"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="getPersonInfoBPELSOAP11Binding" type="client:getPersonInfoBPEL">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="process">
+            <soap:operation style="document" soapAction="http://xmlns.oracle.com/GOL12c_appliedTestSB/humanResourceBPEL/getPersonInfoBPEL/process"/>
+            <wsdl:input>
+                <soap:body use="literal" parts="payload"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" parts="payload"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="getpersoninfobpel_client_ep">
+        <wsdl:port name="getPersonInfoBPEL_pt" binding="client:getPersonInfoBPELSOAP11Binding">
+            <soap:address location="https://localhost:7102/soa-infra/services/GOL/humanResourceBPEL!1.0*soa_4a314f03-d332-4196-a09d-5765859206f6/getpersoninfobpel_client_ep"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

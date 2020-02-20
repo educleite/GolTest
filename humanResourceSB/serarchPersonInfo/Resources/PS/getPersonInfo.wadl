@@ -1,0 +1,22 @@
+<application xmlns:soa="http://www.oracle.com/soa/rest" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://www.gol.com.br/humanResourceSB/getPersonInfo" xmlns:ns0="http://www.gol.com.br/hr/" xmlns="http://wadl.dev.java.net/2009/02">
+  <doc title="getPersonInfo">Find person information about the spring to employee</doc>
+  <grammars>
+    <xsd:schema>
+      <xsd:import namespace="http://www.gol.com.br/hr/" schemaLocation="../Schemas/XSD/humanResourceEBS.xsd"/>
+    </xsd:schema>
+  </grammars>
+  <resources>
+    <resource path="/getPersonInfo">
+      <method name="POST" soa:wsdlOperation="searchPersonInfo">
+        <request>
+          <representation mediaType="application/xml" element="cns:personInfo" xmlns:cns="http://www.gol.com.br/hr/"/>
+          <representation mediaType="application/json" element="cns:personInfo" xmlns:cns="http://www.gol.com.br/hr/"/>
+        </request>
+        <response status="200">
+          <representation mediaType="application/xml" element="cns:resultPersonInfo" xmlns:cns="http://www.gol.com.br/hr/"/>
+          <representation mediaType="application/json" element="cns:resultPersonInfo" xmlns:cns="http://www.gol.com.br/hr/"/>
+        </response>
+      </method>
+    </resource>
+  </resources>
+</application>

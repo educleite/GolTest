@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="getPersonInfoBPEL"
+             targetNamespace="http://xmlns.oracle.com/GOL12c_appliedTestSB/humanResourceBPEL/getPersonInfoBPEL"
+             xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:client="http://xmlns.oracle.com/GOL12c_appliedTestSB/humanResourceBPEL/getPersonInfoBPEL"
+             xmlns:ns1="http://www.gol.com.br/hr/"
+             xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+	
+  <wsdl:types>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import namespace="http://www.gol.com.br/hr/" schemaLocation="humanResourceEBS.xsd"/>
+    </xsd:schema>
+  </wsdl:types>
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	TYPE DEFINITION - List of services participating in this BPEL process
+	The default output of the BPEL designer uses strings as input and 
+	output to the BPEL Process. But you can define or import any XML 
+	Schema type and use them as part of the message types.
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->   
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	MESSAGE TYPE DEFINITION - Definition of the message types used as 
+	part of the port type defintions
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->      
+	<wsdl:message name="getPersonInfoBPELRequestMessage">
+		<wsdl:part name="payload" element="ns1:personInfo" />
+	</wsdl:message>
+	<wsdl:message name="getPersonInfoBPELResponseMessage">
+		<wsdl:part name="payload" element="ns1:resultPersonInfo" />
+	</wsdl:message>
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	PORT TYPE DEFINITION - A port type groups a set of operations into
+	a logical service unit.
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+	<!-- portType implemented by the getPersonInfoBPEL BPEL process -->
+	<wsdl:portType name="getPersonInfoBPEL">
+		<wsdl:operation name="process">
+			<wsdl:input  message="client:getPersonInfoBPELRequestMessage" />
+			<wsdl:output message="client:getPersonInfoBPELResponseMessage"/>
+		</wsdl:operation>
+	</wsdl:portType>
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	PARTNER LINK TYPE DEFINITION
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --> 
+	<plnk:partnerLinkType name="getPersonInfoBPEL">
+		<plnk:role name="getPersonInfoBPELProvider" portType="client:getPersonInfoBPEL"/>
+	</plnk:partnerLinkType>
+ <wsdl:binding name="getPersonInfoBPELSOAP11Binding" type="client:getPersonInfoBPEL">
+  <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+  <wsdl:operation name="process">
+   <soap:operation style="document"
+                   soapAction="http://xmlns.oracle.com/GOL12c_appliedTestSB/humanResourceBPEL/getPersonInfoBPEL/process"/>
+   <wsdl:input>
+    <soap:body use="literal" parts="payload"/>
+   </wsdl:input>
+   <wsdl:output>
+    <soap:body use="literal" parts="payload"/>
+   </wsdl:output>
+  </wsdl:operation>
+ </wsdl:binding>
+</wsdl:definitions>
